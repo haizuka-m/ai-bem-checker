@@ -1,0 +1,23 @@
+{
+  "name": "ai-bem-checker",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/src/analyzeBEM.js",
+  "scripts": {
+    "build": "tsc && node ./scripts/move-cli.js",
+    "test": "node --loader ts-node/esm test/run-tests.ts"
+  },
+  "bin": {
+    "ai-bem-checker": "./dist/cli.js"
+  },
+  "files": [
+    "dist/",
+    "spec.yaml",
+    "README.md"
+  ],
+  "devDependencies": {
+    "typescript": "^5.2.0",
+    "ts-node": "^10.9.1",
+    "@types/node": "^18.0.0"
+  }
+}
