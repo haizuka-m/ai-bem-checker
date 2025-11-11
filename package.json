@@ -1,5 +1,5 @@
 {
-  "name": "ai-bem-checker",
+  "name": "@haizuka-m/ai-bem-checker",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/src/analyzeBEM.js",
@@ -15,6 +15,9 @@
     "spec.yaml",
     "README.md"
   ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "devDependencies": {
     "typescript": "^5.2.0",
     "ts-node": "^10.9.1",
