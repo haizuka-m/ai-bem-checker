@@ -118,3 +118,38 @@ output_formats:
     description: "（オプション）メンターとしての対話的なフィードバック（Markdown形式）。lint_result を人間向けに翻訳したもの。"
     content_type: "text/markdown"
     # この形式は、lint_result (JSON) を入力として、ペルソナ定義に基づき生成される。
+
+# ⚙️ ツール設定 (Configuration)
+configuration:
+  # ツールがプロジェクトルートで探す設定ファイル名
+  config_file_name: .bem-checker-rc.json
+  
+  # 設定ファイル（.bem-checker-rc.json）のスキーマ定義
+  schema:
+    type: "object"
+    description: "BEMチェッカーのカスタマイズ設定"
+    properties:
+      output:
+        type: "object"
+        description: "レポート出力設定（Zero-Configが優先）"
+        properties:
+          path:
+            type: "string"
+            description: "レポートの出力先ディレクトリ（例: ./lint-results/bem/）"
+          filenamePattern:
+            type: "string"
+            description: "出力ファイル名のパターン（例: BEM_{YYYY}{MM}{DD}_{HH}{mm}.json）。{YYYY}, {MM}, {DD}, {HH}, {mm}, {ss} をサポート。"
+      
+      ignoreList:
+        type: "array"
+        description: "BEM違反チェックから除外するクラス名（文字列）のリスト。プロジェクト固有のユーティリティや誤検出を回避するために使用される。デフォルトの無視リスト（is-, swiper-*など）とマージされる。"
+        items:
+          type: "string"
+          description: "無視するクラス名（正規表現も可）"
+    
+    # Zero-Config (Zero-Configuration) の動作を追記
+    zero_config_behavior:
+      - rule: "設定ファイルなし（.bem-checker-rc.json 不存在）の場合"
+        action: "デフォルトで `./bem-reports/` フォルダに `bem-report_{YYYY}-{MM}-{DD}_{HH}{mm}{ss}.json` として自動出力する。"
+      - rule: "ignoreList の適用"
+        action: "設定ファイルで定義された `ignoreList` は、システム内部の `defaultIgnoreList` と合体（マージ）して適用される。"
