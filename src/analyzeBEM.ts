@@ -8,6 +8,7 @@ export type Violation = {
   column?: number;
   original: string;
   suggestion: string;
+  tag_snippet?: string;
 };
 
 export type FileResult = {
@@ -24,8 +25,8 @@ export type LintResult = {
 };
 
 // --- Helpers: extract class names (basic, regex-based) ---
-export function extractClassNames(content: string): { className: string; line: number; column: number }[] {
-  const results: { className: string; line: number; column: number }[] = [];
+export function extractClassNames(content: string): { className: string; line: number; column: number; tagSnippet: string }[] {
+  const results: { className: string; line: number; column: number; tagSnippet: string }[] = [];
 
   // Match class="..." or class='...' or className="..." / className='...' or className={`...`} or className={"..."}
   const attrRegex = /class(?:Name)?\s*=\s*(?:"([^"]+)"|'([^']+)'|\{\s*`([^`]+)`\s*\}|\{\s*"([^"]+)"\s*\}|\{\s*'([^']+)'\s*\})/g;
@@ -34,11 +35,18 @@ export function extractClassNames(content: string): { className: string; line: n
     const raw = m[1] ?? m[2] ?? m[3] ?? m[4] ?? m[5] ?? "";
     const classes = raw.split(/\s+/).map(s => s.trim()).filter(Boolean);
 
-    // Determine the absolute index of the attribute value within the full content so we can compute line/column
+  // Determine the absolute index of the attribute value within the full content so we can compute line/column
     const fullMatch = m[0];
     const matchStart = m.index ?? 0; // start index of the whole attribute match
     const rawStartInFull = fullMatch.indexOf(raw);
     const attrValueStartIndex = matchStart + (rawStartInFull >= 0 ? rawStartInFull : 0);
+
+  // Find the surrounding tag snippet: from previous '<' to next '>' after the attribute
+  let tagStart = content.lastIndexOf('<', matchStart);
+  if (tagStart === -1) tagStart = matchStart;
+  let tagEnd = content.indexOf('>', matchStart);
+  if (tagEnd === -1) tagEnd = matchStart + fullMatch.length - 1;
+  const tagSnippet = content.slice(tagStart, tagEnd + 1);
 
     // For each class token, compute its absolute index by searching within raw (track offset for duplicates)
     let searchOffsetInRaw = 0;
@@ -53,7 +61,7 @@ export function extractClassNames(content: string): { className: string; line: n
       const line = before.split('\n').length;
       const column = lastNewline === -1 ? absoluteIndex + 1 : absoluteIndex - lastNewline;
 
-      results.push({ className: cls, line, column });
+      results.push({ className: cls, line, column, tagSnippet });
     }
   }
 
@@ -202,13 +210,14 @@ export function analyzeBEM(content: string, filePath: string, userIgnoreList: st
   const combinedRegex = combinedPatterns.map(patternToRegex);
   const fileViolations: Violation[] = [];
 
-  for (const { className, line, column } of extracted) {
+  for (const { className, line, column, tagSnippet } of extracted) {
     // If className matches any ignore pattern, skip further checks
     if (combinedRegex.some(r => r.test(className))) continue;
     const vR4 = detectElementNesting(className);
     if (vR4) {
       vR4.line = line;
       vR4.column = column;
+      vR4.tag_snippet = tagSnippet;
       fileViolations.push(vR4);
     }
 
@@ -216,6 +225,7 @@ export function analyzeBEM(content: string, filePath: string, userIgnoreList: st
     for (const v of others) {
       v.line = line;
       v.column = column;
+      v.tag_snippet = tagSnippet;
       fileViolations.push(v);
     }
   }

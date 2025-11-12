@@ -15,9 +15,9 @@
 ## 🚀 使い方：チェックツールとして
 
 - このツールのパッケージは、プライベートな「GitHub Packages レジストリ」に保管されています。
-- npm コマンドでインストールには、以下の2つの初期設定（認証と設定）が必要です。
+- `npm` コマンドでのインストールには、Node.jsと、以下の2つの初期設定（認証と設定）が必要です。
 
-### 1⃣ npmインストール前の準備（認証と設定）
+### 1） npmインストール前の準備（認証と設定）
 
 - **個人の「カギ（PAT）」でログイン**
     - **自分専用のPAT（秘密の鍵）**を使ってGitHubにログインし、ツールのダウンロード権限を得ます。
@@ -31,7 +31,7 @@ npm login --registry=https://npm.pkg.github.com/
     - npmにパッケージの場所を教えるため、「地図」となる設定ファイルをプロジェクトに追加します。
     - チェックしたいプロジェクトのルート（`package.json`と同じ場所）に、`.npmrc` ファイルを保存します。
 
-### 2⃣ ツールのインストール
+### 2） ツールのインストール
 
 「カギ（PAT）」と「地図（`.npmrc`）」の準備が整えば、あとはコマンド一つでインストールできます。
 
@@ -40,21 +40,23 @@ npm login --registry=https://npm.pkg.github.com/
 npm install @haizuka-m/ai-bem-checker --save-dev
 ```
 
-### 3⃣ チェック実行
+### 3） チェック実行
 
 `npx` コマンドを使って、プロジェクト全体（.）のチェックを実行します。
 
 ```bash
 # プロジェクト全体をチェックする場合（推奨）
 npx ai-bem-checker check .
+```
 
+```bash
 # 特定のフォルダだけをチェックする場合
 npx ai-bem-checker check ./faq
 ```
 
 `check` . を指定することで、`assets/css/` やルート階層のHTMLファイルなど、プロジェクト全体をスキャンします。 （`node_modules` や `.git` フォルダは自動で除外されます）
 
-### 4⃣ 結果の出力
+### 4） 結果の出力
 
 実行すると、ターミナルに違反箇所が表示されます。 **同時に、ファイル出力も自動で行われます。**
 
@@ -62,14 +64,14 @@ npx ai-bem-checker check ./faq
 
 ## ⚙️ ファイル出力と設定 (Configuration)
 
-**設定ファイルは不要です（Zero-Config）**
+**＜ 設定ファイルは不要です（Zero-Config）＞**
 
 このツールは「Zero-Config（設定不要）」に対応しています。 `npx ai-bem-checker check .` を実行すると、**設定ファイルがなくても**、プロジェクトルートに `./bem-reports/` フォルダが自動で作成され、その中にJSONレポートが保存されます。
 
 - デフォルトの出力先: `./bem-reports/`
 - デフォルトのファイル名: `bem-report_{YYYY}-{MM}-{DD}_{HH}{mm}{ss}.json`
 
-**（オプション）出力先をカスタマイズする方法**
+**＜ 出力先をカスタマイズする方法（オプション）＞**
 
 もし、**出力先や「無視するクラス」をカスタマイズしたい場合**、プロジェクトのルート（`package.json` と同じ場所）に `.bem-checker-rc.json` ファイルを作成してください。
 
@@ -91,7 +93,7 @@ npx ai-bem-checker check ./faq
 }
 ```
 
-**ignoreList（無視リスト）について**
+**＜ ignoreList（無視リスト）について ＞**
 
 - `ai-bem-checker` のシステム（`analyzeBEM.ts`）は、`swiper-` などのごく一部の一般的なライブラリや `is-` で始まる状態クラスのみをデフォルトで無視します。
 - `text-center` のようなプロジェクト固有のユーティリティクラスは、この `ignoreList` に利用者が自分で追加する必要があります。
@@ -107,6 +109,7 @@ npx ai-bem-checker check ./faq
   * **(R2) Element:** Elementは `__` で連結されていること。
   * **(R3) Modifier:** Modifierは `--` で連結されていること。
   * **(R4) ネスト禁止:** Elementのネスト（`block__elem__sub-elem`）がされていないこと。
+  * **(R5) Modifier format:** Modifier の形式が `block--modifier` または `block__element--modifier` に従っていること。
 
 -----
 
@@ -115,7 +118,7 @@ npx ai-bem-checker check ./faq
 - 開発した `spec.yaml` は、ChatGPTやGem（Gemini）、Copilot ChatなどのAIツールが「BEM相談役」として振る舞うための公式な指示書として活用できます。
 - Linterの自動チェックだけでは解決できない、**「なぜこのルールがあるのか」「別の書き方はないか」といった対話的な質問**に、一貫したトーンと知識で回答できるようにします。
 
-### 1. 設定手順（LLMを用いたカスタムAI）
+### 1）設定手順（LLMを用いたカスタムAI）
 
 社内メンバーが共通の「BEM相談役」を利用できるように、以下の手順で設定ファイルをAIツールに読み込ませます。
 
@@ -128,7 +131,7 @@ npx ai-bem-checker check ./faq
 - **相談役AIの完成**：
     - これにより、AIは「BEMに精通したプロのフロントエンドメンター」というペルソナ（`persona: role`）を獲得し、Linterと同じルール（`rules:`）に基づいて回答するようになります。
 
-### 2. 連携イメージ
+### 2）連携イメージ
 
 - **Linter（チェックツール）**：
     - CI/CDで `npx ai-bem-checker check .` を実行し、違反の有無を自動判定する。

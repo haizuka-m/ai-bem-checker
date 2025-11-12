@@ -57,9 +57,13 @@ function prettyPrint(result: LintResult) {
       continue;
     }
     for (const v of f.violations) {
-      console.log(`  - [${v.rule_id}] ${v.message}`);
-      console.log(`      at ${v.line}:${v.column}  original: ${v.original}`);
-      if (v.suggestion) console.log(`      suggestion: ${v.suggestion}`);
+      const snippet = v.tag_snippet ? ` ${v.tag_snippet}` : "";
+      const loc = `Line ${v.line}` + (v.column ? `:${v.column}` : "");
+      if (v.suggestion) {
+        console.log(`  - [${v.rule_id}] ${v.original} -> ${v.suggestion} (${loc}:${snippet})`);
+      } else {
+        console.log(`  - [${v.rule_id}] ${v.message} (${loc}:${snippet})`);
+      }
     }
   }
   console.log(`\nSummary: ${result.summary.file_count} file(s), ${result.summary.violation_count} violation(s)`);

@@ -110,8 +110,9 @@ output_formats:
                     line: { type: "integer", description: "違反箇所の行番号 (1-indexed)" }
                     column: { type: "integer", description: "違反箇所の列番号 (1-indexed)" }
                     original: { type: "string", description: "違反したクラス名やコード断片" }
+                    tag_snippet: { type: "string", description: "違反クラス名を含む、HTMLタグのスニペット全体（例: '<div class=\"card-head\">'）" }
                     suggestion: { type: "string", description: "修正案のクラス名" }
-                  required: ["rule_id", "message", "line", "original", "suggestion"]
+                  required: ["rule_id", "message", "line", "original", "suggestion", "tag_snippet"]
             required: ["file_path", "violations"]
       required: ["summary", "files"]
   - type: "chat_feedback"
